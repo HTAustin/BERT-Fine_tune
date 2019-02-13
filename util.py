@@ -64,8 +64,8 @@ class DataGenerator(object):
                 return sim.replace("\n", ""), a.replace("\n", ""), b.replace("\n", ""), ID.replace("\n", ""), url.replace("\n", "")
         else:
             for l in self.f:
-                label, a, b = l.replace("\n", "").split("\t")
-                return label, a, b, None, None
+                label, sim, a, b, qid, docid = l.replace("\n", "").split("\t")
+                return label, sim, a, b, qid, docid
 
         return None, None, None, None, None
 
