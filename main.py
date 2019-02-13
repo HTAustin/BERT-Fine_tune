@@ -96,11 +96,13 @@ def load_checkpoint(filename):
     return state['epoch'], state['arch'], state['model'], state['tokenizer'], state['scores']
 
 def test(args, split="test", model=None, tokenizer=None, test_dataset=None):
-    if model is None:
-        epoch, arch, model, tokenizer, scores = load_checkpoint(args.pytorch_dump_path)
-    if test_dataset is None: 
-        print("Load test set")
-        test_dataset = load_data(args.data_path, args.data_name, args.batch_size, tokenizer, split, args.device)
+    # if model is None:
+    #     epoch, arch, model, tokenizer, scores = load_checkpoint(args.pytorch_dump_path)
+    # if test_dataset is None: 
+    model, tokenizer = load_pretrained_model_tokenizer(args.model_type, device=args.device)
+    print("Load test set")
+    test_dataset = load_trec_data(args.data_path, args.data_name,
+       args.batch_size, tokenizer, split, args.device)
     
     model.eval()
     prediction_score_list, prediction_index_list, labels = [], [], []
@@ -162,8 +164,8 @@ if __name__ == '__main__':
     parser.add_argument('--warmup_proportion', default=0.1, type=float, help='Proportion of training to perform linear learning rate warmup. E.g., 0.1 = 10%% of training.')
     args = parser.parse_args()
     
-    if args.mode == "train":
-        train(args)
-    else:
-        scores = test(args)
-        print_scores(scores)
+    # if args.mode == "train":
+    #     train(args)
+    # else:
+    scores = test(args)
+    print_scores(scores)
