@@ -64,8 +64,9 @@ class DataGenerator(object):
                 return sim.replace("\n", ""), a.replace("\n", ""), b.replace("\n", ""), ID.replace("\n", ""), url.replace("\n", "")
         else:
             for l in self.f:
-                label, sim, a, b, qid, docid = l.replace("\n", "").split("\t")
-                return label, sim, a, b, qid, docid
+                label, sim, a, b, qid, docid, qidx, didx = \
+                    l.replace("\n", "").split("\t")
+                return label, sim, a, b, qid, docid, qidx, didx
 
         return None, None, None, None, None
 
@@ -134,7 +135,8 @@ def load_trec_data(data_path, data_name, batch_size, tokenizer, split="train",
     while True:
         dataGenerator = DataGenerator(data_path, data_name, split)
         while True:
-            label, sim, a, b, qid, docid = dataGenerator.get_instance()
+            label, sim, a, b, qno, docno, qidx, didx = \
+                dataGenerator.get_instance()
             if label is None:
                 break
             a = "[CLS] " + a + " [SEP]"
@@ -143,13 +145,15 @@ def load_trec_data(data_path, data_name, batch_size, tokenizer, split="train",
             b_index = tokenize_index(b, tokenizer)
             combine_index = a_index + b_index
             segments_ids = [0] * len(a_index) + [1] * len(b_index)
+            combine_index = combine_index[:360]
+            segments_ids = segments_ids[:360]
             test_batch.append(torch.tensor(combine_index))
             testqid_batch.append(torch.tensor(segments_ids))
             mask_batch.append(torch.ones(len(combine_index)))
             label_batch.append(int(label))
             # qid, _, docid, _, _, _ = ID.split()
-            qid = int(qid)
-            docid = int(docid)
+            qid = int(qidx)
+            docid = int(didx)
             qid_batch.append(qid)
             docid_batch.append(docid)
             if len(test_batch) >= batch_size:
